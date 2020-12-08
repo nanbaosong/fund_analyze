@@ -17,20 +17,45 @@ class BaseInfo(object):
         self.name = name
         self.code = code
         all_data = info.find_all(name='td')
-        for data in all_data:
-            
+        if all_data:
+            for td in all_data:
+                key = td.text.split('：')[0]
+                value = td.text.split('：')[1]
+                if key == '基金类型':
+                    self.fund_type = value.split('\xa0')[0]
+                    self.risk_level = value.split('\xa0')[-1]
+                if key == '基金规模':
+                    self.fund_size = float(value.split('亿')[0])
+                    self.find_size_html = td.find(name='a')['href']
+                if key == '基金经理':
+                    self.current_manager = value
+                    self.manager_html = td.find(name='a')['href']
+                if key == '成 立 日':
+                    self.create_date = value
+                if key == '管 理 人':
+                    self.organization = value
+                    self.organization_html = td.find(name='a')['href']
+                if key == '基金评级':
+                    pic_string = td.find(name='div')['class'][0]
+                    self.fund_rating_html = td.find(name='a')['href']
+                    if len(pic_string) == 4:
+                        self.fund_rating = 0
+                    if len(pic_string) == 5:
+                        self.fund_rating = int(pic_string[-1])
 
 
 class FundInfo(object):
 
     def __init__(self, all_info, name, code):
         base_info = all_info.find(name='div', attrs={'class': 'infoOfFund'})
-        fund_info.set_base_info(base_info, name, code)
+        self.set_base_info(base_info, name, code)
 
     def set_base_info(self, info, name, code):
         self.base_info = BaseInfo(info, name, code)
+
     def set_manager_info(self, info):
-        self.manager_info = ManagerInfo(info)
+        self.manager_info = ManagerInfo(self.base_info.manager_html)
+
     def set_prices_info(self, info):
         self.price_info = PriceInfo(info)
 
