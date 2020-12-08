@@ -5,11 +5,33 @@ from datetime import datetime
 
 headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.      36'}
 
-class ManagerInfo(object):
-    pass
- 
 class PriceInfo(object):
     pass
+
+class ManagerPeroidInfo:
+    def __init__(self, info):
+        all_data = info.find_all(name='td')
+        for index,value in enumerate(all_data):
+            if index == 0:
+                self.start_date = value.text
+            if index == 1:
+                self.end_date = value.text
+            if index == 2:
+                self.manager_name = value.text
+            if index == 3:
+                self.period = value.text
+            if index == 4:
+                self.score = value.text
+
+
+class ManagerInfo(object):
+    manager_info_list = []
+
+    def __init__(self, info):
+        manager_peroid = info.find(name='div', attrs={'class': 'box'}).find(name='tbody').find_all(name='tr')
+        if manager_peroid:
+            for element in manager_peroid:
+                self.manager_info_list.append(ManagerPeroidInfo(element))
  
 class BaseInfo(object):
 
@@ -49,12 +71,17 @@ class FundInfo(object):
     def __init__(self, all_info, name, code):
         base_info = all_info.find(name='div', attrs={'class': 'infoOfFund'})
         self.set_base_info(base_info, name, code)
+        self.set_manager_info()
+        pass
 
     def set_base_info(self, info, name, code):
         self.base_info = BaseInfo(info, name, code)
 
-    def set_manager_info(self, info):
-        self.manager_info = ManagerInfo(self.base_info.manager_html)
+    def set_manager_info(self):
+        manager_info_html = requests.get(self.base_info.manager_html)
+        manager_info_html.encoding='utf-8'
+        soup = BeautifulSoup(manager_info_html.text, 'lxml')
+        self.manager_info = ManagerInfo(soup)
 
     def set_prices_info(self, info):
         self.price_info = PriceInfo(info)
@@ -64,6 +91,7 @@ def get_one_fund_info(url, name, code):
     html.encoding='utf-8'
     soup = BeautifulSoup(html.text, 'lxml')
     fund_info = FundInfo(soup, name, code)
+    return fund_info
 
 def get_all_data(root_url):
     root_html = requests.get(root_url, headers)
@@ -71,12 +99,21 @@ def get_all_data(root_url):
     root_soup = BeautifulSoup(root_html.text, 'lxml')
     all_data = root_soup.find(name='tbody', attrs={'id': 'tableContent'}).find_all(name='td', attrs={'class': 'ui-table-left'})
     url = 'http://fund.eastmoney.com/'
+    all_fund_info = []
     for data in all_data:
         tmp = data.find(name='a')
         url = url + tmp['href']
         name = tmp.text
-        get_one_fund_info(url, name, tmp['href'].split('.')[0])
+        one_fund_info = get_one_fund_info(url, name, tmp['href'].split('.')[0])
+        all_fund_info.append(one_fund_info)
+    return all_fund_info
+
+def analyze(all_data):
+    pass
+
 
 if __name__ == "__main__":
     root_url = 'http://fund.eastmoney.com/fundguzhi.html'
-    get_all_data(root_url)
+    all_data = get_all_data(root_url)
+    analyze(all_data)
+
