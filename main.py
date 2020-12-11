@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-d
 from fund_info import *
+import xlrd
+import xlwt
 
 headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.      36'}
+filename = 'all_fund_data.xls'
 
 def get_one_fund_info(url, name, code):
     html = requests.get(url, headers)
@@ -25,11 +28,26 @@ def get_all_data(root_url):
     return all_fund_info
 
 def analyze(all_data):
-    pass
+    return all_data
 
+
+def wirte_to_file(data, file_path_name):
+    excel = xlwt.Workbook()
+    sheet = excel.add_sheet("0")
+    row = 0
+    for element in data:
+        sheet.write(row, 0, element.base_info.name)
+        sheet.write(row, 1, element.base_info.code)
+        sheet.write(row, 2, element.base_info.fund_type)
+        sheet.write(row, 3, element.base_info.risk_level)
+        sheet.write(row, 4, element.base_info.fund_size)
+        sheet.write(row, 5, element.base_info.current_manager)
+        row = row + 1
+    excel.save(file_path_name)
 
 if __name__ == "__main__":
     root_url = 'http://fund.eastmoney.com/fundguzhi.html'
     all_data = get_all_data(root_url)
-    analyze(all_data)
+    selected_data = analyze(all_data)
+    wirte_to_file(selected_data, filename)
 

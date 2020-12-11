@@ -1,4 +1,4 @@
-from base_data_block_info import * 
+from base_data import * 
 
 class FundInfo(object):
 

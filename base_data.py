@@ -17,8 +17,7 @@ class BaseInfo(object):
                     self.fund_type = value.split('\xa0')[0]
                     self.risk_level = value.split('\xa0')[-1]
                 if key == '基金规模':
-                    if value.split('亿')[0] != '--':
-                        self.fund_size = float(value.split('亿')[0])
+                    self.fund_size = to_float(value)
                     self.find_size_html = td.find(name='a')['href']
                 if key == '基金经理':
                     self.current_manager = value
@@ -66,4 +65,47 @@ class Increase(object):
     hushen_300 = {}
     rank = {}
     def __init__(self, info):
-        pass
+        all_data = info.find_all(name='tr')
+        for index,value in enumerate(all_data):
+            # need to do next time
+            if index != 0 and index < 5:
+                self.get_data(value, index)
+    
+    def get_data(self, value, index):
+        data = value.find_all(name='td')
+        if index == 1:
+            d = self.current_fund
+        if index == 2:
+            d = self.same_type_ave
+        if index == 3:
+            d = self.hushen_300
+        if index == 4:
+            d = self.rank
+        for sub_index, sub_value in enumerate(data):
+            if sub_index == 1:
+                d['oneWeek'] = to_float(sub_value.text)
+            if sub_index == 2:
+                d['oneMonth'] = to_float(sub_value.text)
+            if sub_index == 3:
+                d['threeMonth'] = to_float(sub_value.text)
+            if sub_index == 4:
+                d['sixMonth'] = to_float(sub_value.text)
+            if sub_index == 5:
+                d['currentYear'] = to_float(sub_value.text)
+            if sub_index == 6:
+                d['oneYear'] = to_float(sub_value.text)
+            if sub_index == 7:
+                d['twoYear'] = to_float(sub_value.text)
+            if sub_index == 8:
+                d['threeYear'] = to_float(sub_value.text)
+
+def to_float(st):
+    if st.find('--') != -1:
+        return -100000.0
+    if st.find('|') != -1:
+        return float(st.split('|')[0]) / float(st.split('|')[-1])
+    if st.find('%') != -1:
+        st = st.split('%')[0]
+    if st.find('亿') != -1:
+        st = st.split('亿')[0]
+    return float(st)
