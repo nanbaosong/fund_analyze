@@ -10,20 +10,24 @@ def get_one_fund_info(url, name, code):
     html = requests.get(url, headers)
     html.encoding='utf-8'
     soup = BeautifulSoup(html.text, 'lxml')
+    redirect = soup.find(name='head').find(name='script', attrs={'type': 'text/javascript'})
+    if redirect != None and redirect.contents[0] != None:
+        real_url = redirect.contents[0].split('"')[1]
+        html = requests.get(real_url, headers)
+        html.encoding='utf-8'
+        soup = BeautifulSoup(html.text, 'lxml')
     fund_info = FundInfo(soup, name, code)
     return fund_info
 
 def get_all_data(root_url):
     root_html = requests.get(root_url, headers)
-    root_html.encoding='gb2312'
-    root_soup = BeautifulSoup(root_html.text, 'lxml')
-    all_data = root_soup.find(name='tbody', attrs={'id': 'tableContent'}).find_all(name='td', attrs={'class': 'ui-table-left'})
+    root_html.encoding='utf-8'
+    tmp_str = root_html.text[9:-1]
+    all_data = eval(tmp_str)
     all_fund_info = []
     for data in all_data:
-        tmp = data.find(name='a')
-        url = 'http://fund.eastmoney.com/' + tmp['href']
-        name = tmp.text
-        one_fund_info = get_one_fund_info(url, name, tmp['href'].split('.')[0])
+        url = 'http://fund.eastmoney.com/' + data[0] + '.html'
+        one_fund_info = get_one_fund_info(url, data[2], data[0])
         all_fund_info.append(one_fund_info)
     return all_fund_info
 
@@ -46,7 +50,7 @@ def wirte_to_file(data, file_path_name):
     excel.save(file_path_name)
 
 if __name__ == "__main__":
-    root_url = 'http://fund.eastmoney.com/fundguzhi.html'
+    root_url = 'http://fund.eastmoney.com/js/fundcode_search.js'
     all_data = get_all_data(root_url)
     selected_data = analyze(all_data)
     wirte_to_file(selected_data, filename)
