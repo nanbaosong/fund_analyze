@@ -59,7 +59,7 @@ class ManagerPeroidInfo:
             if index == 4:
                 self.score = value.text
 
-class Increase(object):
+class IncreaseInfo(object):
     current_fund = {}
     same_type_ave = {}
     hushen_300 = {}

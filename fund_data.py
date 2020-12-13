@@ -20,4 +20,4 @@ class FundInfo(object):
         self.manager_info = ManagerInfo(soup)
 
     def set_increase_info(self, info):
-        self.increase_info = Increase(info)
+        self.increase_info = IncreaseInfo(info)
