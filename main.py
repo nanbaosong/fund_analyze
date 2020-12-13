@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-d
-from fund_info import *
+from fund_data import *
 import xlrd
 import xlwt
 

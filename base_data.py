@@ -17,7 +17,7 @@ class BaseInfo(object):
                     self.fund_type = value.split('\xa0')[0]
                     self.risk_level = value.split('\xa0')[-1]
                 if key == '基金规模':
-                    self.fund_size = to_float(value)
+                    self.fund_size = to_specific_value(value)
                     self.find_size_html = td.find(name='a')['href']
                 if key == '基金经理':
                     self.current_manager = value
@@ -64,42 +64,51 @@ class Increase(object):
     same_type_ave = {}
     hushen_300 = {}
     rank = {}
+    follow = {}
+    level = {}
     def __init__(self, info):
         all_data = info.find_all(name='tr')
         for index,value in enumerate(all_data):
-            # need to do next time
-            if index != 0 and index < 5:
-                self.get_data(value, index)
+            if index != 0:
+                self.get_data(value)
     
-    def get_data(self, value, index):
-        data = value.find_all(name='td')
-        if index == 1:
+    def get_data(self, value):
+        key = value.find(name='td')
+        if key.text.strip() == '阶段涨幅':
             d = self.current_fund
-        if index == 2:
+        if key.text.strip() == '同类平均':
             d = self.same_type_ave
-        if index == 3:
+        if key.text.strip() == '沪深300':
             d = self.hushen_300
-        if index == 4:
+        if key.find(name='div', attrs={'class': 'infoTips'}) != None and key.contents[1].contents[0].strip() == '跟踪标的':
+            d = self.follow
+        if key.text.strip() == '同类排名':
             d = self.rank
+        if key.find(name='div', attrs={'class': 'infoTips'}) != None and key.contents[1].contents[0].strip() == '四分位排名':
+            d = self.level
+        data = value.find_all(name='td')
         for sub_index, sub_value in enumerate(data):
             if sub_index == 1:
-                d['oneWeek'] = to_float(sub_value.text)
+                d['oneWeek'] = to_specific_value(sub_value.text)
             if sub_index == 2:
-                d['oneMonth'] = to_float(sub_value.text)
+                d['oneMonth'] = to_specific_value(sub_value.text)
             if sub_index == 3:
-                d['threeMonth'] = to_float(sub_value.text)
+                d['threeMonth'] = to_specific_value(sub_value.text)
             if sub_index == 4:
-                d['sixMonth'] = to_float(sub_value.text)
+                d['sixMonth'] = to_specific_value(sub_value.text)
             if sub_index == 5:
-                d['currentYear'] = to_float(sub_value.text)
+                d['currentYear'] = to_specific_value(sub_value.text)
             if sub_index == 6:
-                d['oneYear'] = to_float(sub_value.text)
+                d['oneYear'] = to_specific_value(sub_value.text)
             if sub_index == 7:
-                d['twoYear'] = to_float(sub_value.text)
+                d['twoYear'] = to_specific_value(sub_value.text)
             if sub_index == 8:
-                d['threeYear'] = to_float(sub_value.text)
+                d['threeYear'] = to_specific_value(sub_value.text)
 
-def to_float(st):
+def to_specific_value(st):
+    st = st.strip()
+    if st == '优秀' or st == '良好' or st == '一般' or st == '不佳':
+        return st
     if st.find('--') != -1:
         return -100000.0
     if st.find('|') != -1:
