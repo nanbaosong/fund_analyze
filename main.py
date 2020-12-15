@@ -25,7 +25,7 @@ def get_all_data(root_url):
     tmp_str = root_html.text.split('=')[-1].split(';')[0]
     all_data = eval(tmp_str)
     all_fund_info = []
-    file = open('wahtYouWant.txt', 'w')
+    file = open('whatYouWant.txt', 'w')
     for data in all_data:
         url = 'http://fund.eastmoney.com/' + data[0] + '.html'
         print('==== start to get data of %s %s ===='%(data[0], data[2]))
