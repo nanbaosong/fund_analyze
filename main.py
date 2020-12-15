@@ -25,14 +25,30 @@ def get_all_data(root_url):
     tmp_str = root_html.text.split('=')[-1].split(';')[0]
     all_data = eval(tmp_str)
     all_fund_info = []
+    file = open('wahtYouWant.txt', 'w')
     for data in all_data:
         url = 'http://fund.eastmoney.com/' + data[0] + '.html'
         print('==== start to get data of %s %s ===='%(data[0], data[2]))
         one_fund_info = get_one_fund_info(url, data[2], data[0])
         print('==== end to get data of %s %s ===='%(data[0], data[2]))
+        get_what_you_want(one_fund_info, file)
         all_fund_info.append(one_fund_info)
+    file.close()
     return all_fund_info
 
+def get_what_you_want(input, file):
+    same_type_ave = input.increase_info.same_type_ave
+    if input.base_info > 30 and same_type_ave['oneWeek'] < 0.3\ 
+    and same_type_ave['oneMonth'] < 0.3\
+    and same_type_ave['threeMonth'] < 0.3\
+    and same_type_ave['sixMonth'] < 0.3\
+    and same_type_ave['currentYear'] < 0.3\
+    and same_type_ave['oneYear'] < 0.3\
+    and same_type_ave['twoYear'] < 0.3:
+        file.writelines(input.base_info.code)
+        file.write('\n')
+
+        
 def analyze(all_data):
     return all_data
 
