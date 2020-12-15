@@ -38,13 +38,7 @@ def get_all_data(root_url):
 
 def get_what_you_want(input, file):
     same_type_ave = input.increase_info.same_type_ave
-    if input.base_info > 30 and same_type_ave['oneWeek'] < 0.3\ 
-    and same_type_ave['oneMonth'] < 0.3\
-    and same_type_ave['threeMonth'] < 0.3\
-    and same_type_ave['sixMonth'] < 0.3\
-    and same_type_ave['currentYear'] < 0.3\
-    and same_type_ave['oneYear'] < 0.3\
-    and same_type_ave['twoYear'] < 0.3:
+    if input.base_info > 30 and same_type_ave['oneWeek'] < 0.3 and same_type_ave['oneMonth'] < 0.3 and same_type_ave['threeMonth'] < 0.3 and same_type_ave['sixMonth'] < 0.3 and same_type_ave['currentYear'] < 0.3 and same_type_ave['oneYear'] < 0.3 and same_type_ave['twoYear'] < 0.3:
         file.writelines(input.base_info.code)
         file.write('\n')
 
