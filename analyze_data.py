@@ -9,7 +9,7 @@ def is_what_you_want(input):
     return False
 
 def is_in_selected_top_rank(increase_info, rank_rate):
-    rank = input.increase_info.rank
+    rank = increase_info.rank
     if rank['oneWeek'] < rank_rate and rank['oneWeek'] != -100000.0 and\
        rank['oneMonth'] < rank_rate and rank['oneMonth'] != -100000.0 and\
        rank['threeMonth'] < rank_rate and rank['threeMonth'] != -100000.0 and\
