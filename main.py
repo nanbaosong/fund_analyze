@@ -37,8 +37,8 @@ def get_all_data(root_url):
     return all_fund_info
 
 def get_what_you_want(input, file):
-    same_type_ave = input.increase_info.same_type_ave
-    if input.base_info.fund_size > 30 and same_type_ave['oneWeek'] < 0.3 and same_type_ave['oneMonth'] < 0.3 and same_type_ave['threeMonth'] < 0.3 and same_type_ave['sixMonth'] < 0.3 and same_type_ave['currentYear'] < 0.3 and same_type_ave['oneYear'] < 0.3 and same_type_ave['twoYear'] < 0.3:
+    rank = input.increase_info.rank
+    if input.base_info.fund_size > 30 and rank['oneWeek'] < 0.3 and rank['oneMonth'] < 0.3 and rank['threeMonth'] < 0.3 and rank['sixMonth'] < 0.3 and rank['currentYear'] < 0.3 and rank['oneYear'] < 0.3 and rank['twoYear'] < 0.3:
         file.writelines(input.base_info.code)
         file.write('\n')
 
