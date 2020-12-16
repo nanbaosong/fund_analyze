@@ -32,8 +32,9 @@ def get_all_data(root_url):
         print('==== end to get data of %s %s ===='%(data[0], data[2]))
         all_fund_info.append(one_fund_info)
         if is_what_you_want(one_fund_info):
-            file.writelines(one_fund_info.base_info.code)
-            file.write('\n')
+            file.writelines(('%s  %s  %s  %s  %s  %s  %s  %s\n') % (one_fund_info.base_info.code, one_fund_info.base_info.name, one_fund_info.base_info.fund_type,\
+                            one_fund_info.base_info.create_date, one_fund_info.base_info.current_manager, one_fund_info.base_info.organization,\
+                            one_fund_info.base_info.fund_size, one_fund_info.base_info.fund_rating))
             file.flush()
     file.close()
     return all_fund_info

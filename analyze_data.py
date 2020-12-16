@@ -2,8 +2,8 @@
 from fund_data import *
 
 def is_what_you_want(input):
-    if is_in_selected_size(input.base_info.fund_size, 10, 300):
-        if is_in_selected_top_rank(input.increase_info, 0.3):
+    if is_in_selected_size(input.base_info.fund_size, 10, 350):
+        if is_in_selected_top_rank(input.increase_info, 0.25):
             if is_better_than_hushen_300(input.increase_info):
                 return True
     return False
