@@ -36,15 +36,31 @@ class BaseInfo(object):
                         self.fund_rating = int(pic_string[-1])
 
 class ManagerInfo(object):
+
     def __init__(self, info):
         manager_peroid = info.find(name='div', attrs={'class': 'box'}).find(name='tbody').find_all(name='tr')
         self.manager_info_list = []
         if manager_peroid:
             for element in manager_peroid:
                 self.manager_info_list.append(ManagerPeroidInfo(element))
-
+        manager_names = info.find_all(name='div', attrs={'class': 'jl_intro'})
+        self.manager_names_list = []
+        self.manager_fund_info = []
+        if manager_names:
+            for manager_name in manager_names:
+                name = manager_names.find(name='div', attrs={'class': 'text'}).find(name='p').find('a').text
+                manager_names_list.append(name)
+            manager_fund = info.find_all(name='div', attrs={'class': 'jl_office'})
+            for element in manager_fund:
+                infos = element.find(name='tbody').find_all(name='tr')
+                tmp = []
+                if infos:
+                    for info in infos:
+                        tmp.append(ManagerFundInfo(info))
+                manager_fund_info.append(tmp)
 
 class ManagerPeroidInfo:
+
     def __init__(self, info):
         all_data = info.find_all(name='td')
         for index,value in enumerate(all_data):
@@ -59,13 +75,39 @@ class ManagerPeroidInfo:
             if index == 4:
                 self.score = value.text
 
+class ManagerFundInfo:
+
+    def __init__(self, info):
+        data = info.find_all(name='td')
+        for index, value in enumerate(data):
+            if index == 0:
+                self.code = value.text
+            if index == 1:
+                self.name = value.text
+            if index == 2:
+                self.fund_type = value.text
+            if index == 3:
+                self.start_date = value.text
+            if index == 4:
+                self.end_date = value.text
+            if index == 5:
+                self.time = value.text
+            if index == 6:
+                self.increase_amount = value.text
+            if index == 7:
+                self.same_type_ave = value.text
+            if index == 8:
+                self.rank_rate = to_specific_value(value.text)
+
 class IncreaseInfo(object):
+
     current_fund = {}
     same_type_ave = {}
     hushen_300 = {}
     rank = {}
     follow = {}
     level = {}
+
     def __init__(self, info):
         all_data = info.find_all(name='tr')
         for index,value in enumerate(all_data):
@@ -110,7 +152,7 @@ def to_specific_value(st):
     if st == '优秀' or st == '良好' or st == '一般' or st == '不佳':
         return st
     if st.find('--') != -1:
-        return -100000.0
+        return None
     if st.find('|') != -1:
         return float(st.split('|')[0]) / float(st.split('|')[-1])
     if st.find('%') != -1:
