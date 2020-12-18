@@ -48,8 +48,8 @@ class ManagerInfo(object):
         self.manager_fund_info = []
         if manager_names:
             for manager_name in manager_names:
-                name = manager_names.find(name='div', attrs={'class': 'text'}).find(name='p').find('a').text
-                manager_names_list.append(name)
+                name = manager_name.contents[1].contents[0].contents[1].contents[0]
+                self.manager_names_list.append(name)
             manager_fund = info.find_all(name='div', attrs={'class': 'jl_office'})
             for element in manager_fund:
                 infos = element.find(name='tbody').find_all(name='tr')
@@ -57,7 +57,7 @@ class ManagerInfo(object):
                 if infos:
                     for info in infos:
                         tmp.append(ManagerFundInfo(info))
-                manager_fund_info.append(tmp)
+                self.manager_fund_info.append(tmp)
 
 class ManagerPeroidInfo:
 
@@ -93,9 +93,9 @@ class ManagerFundInfo:
             if index == 5:
                 self.time = value.text
             if index == 6:
-                self.increase_amount = value.text
+                self.increase_amount = to_specific_value(value.text)
             if index == 7:
-                self.same_type_ave = value.text
+                self.same_type_ave = to_specific_value(value.text)
             if index == 8:
                 self.rank_rate = to_specific_value(value.text)
 
@@ -122,11 +122,11 @@ class IncreaseInfo(object):
             d = self.same_type_ave
         if key.text.strip() == '沪深300':
             d = self.hushen_300
-        if key.find(name='div', attrs={'class': 'infoTips'}) != None and key.contents[1].contents[0].strip() == '跟踪标的':
+        if key.find(name='div', attrs={'class': 'infoTips'}) and key.contents[1].contents[0].strip() == '跟踪标的':
             d = self.follow
         if key.text.strip() == '同类排名':
             d = self.rank
-        if key.find(name='div', attrs={'class': 'infoTips'}) != None and key.contents[1].contents[0].strip() == '四分位排名':
+        if key.find(name='div', attrs={'class': 'infoTips'}) and key.contents[1].contents[0].strip() == '四分位排名':
             d = self.level
         data = value.find_all(name='td')
         for sub_index, sub_value in enumerate(data):
@@ -149,10 +149,10 @@ class IncreaseInfo(object):
 
 def to_specific_value(st):
     st = st.strip()
+    if st.find('--') != -1 or (st.find('-') != -1 and st.find('|') != -1) or st == '':
+        return None
     if st == '优秀' or st == '良好' or st == '一般' or st == '不佳':
         return st
-    if st.find('--') != -1:
-        return None
     if st.find('|') != -1:
         return float(st.split('|')[0]) / float(st.split('|')[-1])
     if st.find('%') != -1:

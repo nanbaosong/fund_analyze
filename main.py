@@ -4,6 +4,7 @@ from analyze_data import *
 
 headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.      36'}
 filename = 'whatYouWant.txt'
+manager_filename = 'good_manager.txt'
 
 def get_one_fund_info(url, name, code):
     html = requests.get(url, headers)
@@ -27,6 +28,7 @@ def get_all_data(root_url):
     all_data = eval(tmp_str)
     all_fund_info = []
     file = open(filename, 'w')
+    manager_file = open(manager_filename, 'w')
     # 逐个爬取数据
     for data in all_data:
         url = 'http://fund.eastmoney.com/' + data[0] + '.html'
@@ -40,7 +42,13 @@ def get_all_data(root_url):
                             one_fund_info.base_info.create_date, one_fund_info.base_info.current_manager, one_fund_info.base_info.organization,\
                             one_fund_info.base_info.fund_size, one_fund_info.base_info.fund_rating))
             file.flush()
+        manager_name = get_good_manager(one_fund_info)
+        if manager_name:
+            manager_file.writelines(manager_name)
+            manager_file.writelines('\n')
+            manager_file.flush()
     file.close()
+    manager_file.close()
     return all_fund_info
 
 if __name__ == "__main__":
