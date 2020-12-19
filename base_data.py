@@ -3,8 +3,12 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-class BaseInfo(object):
+headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.      36'}
 
+class BaseInfo(object):
+    """
+    基金基本信息
+    """
     def __init__(self, info, name, code):
         self.name = name
         self.code = code
@@ -36,20 +40,22 @@ class BaseInfo(object):
                         self.fund_rating = int(pic_string[-1])
 
 class ManagerInfo(object):
-
+    """
+    基金经理信息
+    """
     def __init__(self, info):
         manager_peroid = info.find(name='div', attrs={'class': 'box'}).find(name='tbody').find_all(name='tr')
-        self.manager_info_list = []
+        self.manager_period_info_list = []
         if manager_peroid:
             for element in manager_peroid:
-                self.manager_info_list.append(ManagerPeroidInfo(element))
+                self.manager_period_info_list.append(ManagerPeroidInfo(element))
         manager_names = info.find_all(name='div', attrs={'class': 'jl_intro'})
-        self.manager_names_list = []
-        self.manager_fund_info = []
+        self.manager_name_list = []
+        self.manager_fund_info_list = []
         if manager_names:
             for manager_name in manager_names:
                 name = manager_name.contents[1].contents[0].contents[1].contents[0]
-                self.manager_names_list.append(name)
+                self.manager_name_list.append(name)
             manager_fund = info.find_all(name='div', attrs={'class': 'jl_office'})
             for element in manager_fund:
                 infos = element.find(name='tbody').find_all(name='tr')
@@ -57,10 +63,12 @@ class ManagerInfo(object):
                 if infos:
                     for info in infos:
                         tmp.append(ManagerFundInfo(info))
-                self.manager_fund_info.append(tmp)
+                self.manager_fund_info_list.append(tmp)
 
 class ManagerPeroidInfo:
-
+    """
+    基金历任经理信息
+    """
     def __init__(self, info):
         all_data = info.find_all(name='td')
         for index,value in enumerate(all_data):
@@ -76,7 +84,9 @@ class ManagerPeroidInfo:
                 self.score = value.text
 
 class ManagerFundInfo:
-
+    """
+    经理管理过的所有基金信息
+    """
     def __init__(self, info):
         data = info.find_all(name='td')
         for index, value in enumerate(data):
@@ -100,7 +110,9 @@ class ManagerFundInfo:
                 self.rank_rate = to_specific_value(value.text)
 
 class IncreaseInfo(object):
-
+    """
+    基金阶段涨幅信息
+    """
     current_fund = {}
     same_type_ave = {}
     hushen_300 = {}
@@ -146,6 +158,55 @@ class IncreaseInfo(object):
                 d['twoYear'] = to_specific_value(sub_value.text)
             if sub_index == 8:
                 d['threeYear'] = to_specific_value(sub_value.text)
+
+class PositionInfo(object):
+    """
+    基金持仓信息
+    """
+    def __init__(self, info):
+        self.position_list = []
+        info_list = info.find_all(name='tr')
+        if len(info_list) > 1:
+            for index, value in enumerate(info_list):
+                if index != 0:
+                    real_value_list = value.find_all(name='td')
+                    if len(real_value_list) >= 2:
+                        position_name = real_value_list[0].text.strip()
+                        position_url = None
+                        if real_value_list[0].find(name='a'):
+                            position_url = real_value_list[0].find(name='a')['href']
+                        position_rate = real_value_list[1].text
+                        self.position_list.append(ShareBondsPostionInfo(position_name, position_url, position_rate))
+
+class ShareBondsPostionInfo(object):
+    """
+    持仓股票/债券 信息
+    """
+    def __init__(self, name, url, rate):
+        self.name = name
+        self.url = url
+        self.rate = to_specific_value(rate)
+
+class IndustryInfo(object):
+    """
+    行业配置
+    """
+    def __init__(self, info):
+        info_list = info.find_all(name='tr')
+        self.industry_info_list = []
+        for ele in info_list:
+            td = ele.find_all(name='td')
+            name = td[1].text
+            rate = td[3].text
+            self.industry_info_list.append(IndustrySepcInfo(name, rate))
+
+class IndustrySepcInfo(object):
+    """
+    行业配置具体信息
+    """
+    def __init__(self, name, rate):
+        self.name = name
+        self.rate = to_specific_value(rate)
 
 def to_specific_value(st):
     st = st.strip()

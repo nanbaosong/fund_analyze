@@ -2,7 +2,6 @@
 from fund_data import *
 from analyze_data import *
 
-headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.      36'}
 filename = 'whatYouWant.txt'
 manager_filename = 'good_manager.txt'
 
@@ -36,12 +35,13 @@ def get_all_data(root_url):
         one_fund_info = get_one_fund_info(url, data[2], data[0])
         print('==== end to get data of %s %s ===='%(data[0], data[2]))
         all_fund_info.append(one_fund_info)
-        # 根据筛选条件打印符合条件的基金信息
+        # 根据条件筛选基金
         if is_what_you_want(one_fund_info):
             file.writelines(('%s  %s  %s  %s  %s  %s  %s  %s\n') % (one_fund_info.base_info.code, one_fund_info.base_info.name, one_fund_info.base_info.fund_type,\
                             one_fund_info.base_info.create_date, one_fund_info.base_info.current_manager, one_fund_info.base_info.organization,\
                             one_fund_info.base_info.fund_size, one_fund_info.base_info.fund_rating))
             file.flush()
+        # 根据条件筛选基金经理
         manager_name = get_good_manager(one_fund_info)
         if manager_name:
             manager_file.writelines(manager_name)

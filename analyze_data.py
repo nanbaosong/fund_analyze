@@ -11,17 +11,17 @@ def is_what_you_want(input):
     return False
 
 def get_good_manager(input):
-    manager_names_list = input.manager_info.manager_names_list
-    manager_fund_info = input.manager_info.manager_fund_info
-    for index, value in enumerate(manager_fund_info):
-        if manager_names_list[index] in all_manager_info:
+    manager_name_list = input.manager_info.manager_name_list
+    manager_fund_info_list = input.manager_info.manager_fund_info_list
+    for index, value in enumerate(manager_fund_info_list):
+        if manager_name_list[index] in all_manager_info:
             return None
-        all_manager_info.append(manager_names_list[index])
+        all_manager_info.append(manager_name_list[index])
         for info in value:
             if info.increase_amount and info.same_type_ave and info.increase_amount < info.same_type_ave or\
                info.rank_rate and info.rank_rate > 0.25:
                return None
-        return manager_names_list[index]
+        return manager_name_list[index]
 
 def is_in_selected_top_rank(increase_info, rank_rate):
     rank = increase_info.rank
