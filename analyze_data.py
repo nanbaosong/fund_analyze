@@ -3,8 +3,35 @@ from fund_data import *
 
 all_manager_info = []
 
+def analyze_manager(one_fund_info, manager_file):
+    manager_name = get_good_manager(one_fund_info)
+    if manager_name:
+        manager_file.writelines(manager_name)
+        manager_file.writelines('\n')
+        manager_file.flush()
+
+def analyze_one_fund(one_fund_info, fund_file):
+    if is_what_you_want(one_fund_info):
+        fund_file.writelines(('%s  %s  %s  %s  %s  %s  %s  %s\n') % (one_fund_info.base_info.code, one_fund_info.base_info.name, one_fund_info.base_info.fund_type,\
+                        one_fund_info.base_info.create_date, one_fund_info.base_info.current_manager, one_fund_info.base_info.organization,\
+                        one_fund_info.base_info.fund_size, one_fund_info.base_info.fund_rating))
+        fund_file.flush()
+
+
 def is_what_you_want(input):
-    if is_in_selected_size(input.base_info.fund_size, 10, 350):
+    fund_type = input.base_info.fund_type
+    if fund_type == '债券型':
+        return is_what_you_want_bonds(input)
+    return is_what_you_want_shares(input)
+
+def is_what_you_want_bonds(input):
+    if is_in_selected_size(input.base_info.fund_size, 5, 100):
+        if is_in_selected_top_rank(input.increase_info, 0.10):
+                return True
+    return False
+
+def is_what_you_want_shares(input):
+    if is_in_selected_size(input.base_info.fund_size, 10, 200):
         if is_in_selected_top_rank(input.increase_info, 0.25):
             if is_better_than_hushen_300(input.increase_info):
                 return True
