@@ -31,7 +31,7 @@ def is_what_you_want_bonds(input):
     return False
 
 def is_what_you_want_shares(input):
-    if is_in_selected_size(input.base_info.fund_size, 10, 200):
+    if is_in_selected_size(input.base_info.fund_size, 10, 300):
         if is_in_selected_top_rank(input.increase_info, 0.25):
             if is_better_than_hushen_300(input.increase_info):
                 return True
@@ -40,12 +40,14 @@ def is_what_you_want_shares(input):
 def get_good_manager(input):
     manager_name_list = input.manager_info.manager_name_list
     manager_fund_info_list = input.manager_info.manager_fund_info_list
+    manager_career_length = input.manager_info.career_length
     for index, value in enumerate(manager_fund_info_list):
         if manager_name_list[index] in all_manager_info:
             return None
         all_manager_info.append(manager_name_list[index])
         for info in value:
-            if info.increase_amount and info.same_type_ave and info.increase_amount < info.same_type_ave or\
+            if manager_career_length[index] < 3 or\
+               info.increase_amount and info.same_type_ave and info.increase_amount < info.same_type_ave or\
                info.rank_rate and info.rank_rate > 0.25:
                return None
         return manager_name_list[index]
@@ -58,7 +60,8 @@ def is_in_selected_top_rank(increase_info, rank_rate):
        rank['sixMonth'] and rank['sixMonth'] < rank_rate and\
        rank['currentYear'] and rank['currentYear'] < rank_rate and\
        rank['oneYear'] and rank['oneYear'] < rank_rate and\
-       rank['twoYear'] and rank['twoYear'] < rank_rate:
+       rank['twoYear'] and rank['twoYear'] < rank_rate and\
+       rank['threeYear'] and rank['threeYear'] < rank_rate:
         return True
     return False
 
@@ -71,7 +74,8 @@ def is_better_than_hushen_300(increase_info):
         current_fund['sixMonth'] and current_fund['sixMonth'] > hushen_300['sixMonth'] and\
         current_fund['currentYear'] and current_fund['currentYear'] > hushen_300['currentYear'] and\
         current_fund['oneYear'] and current_fund['oneYear'] > hushen_300['oneYear'] and\
-        current_fund['twoYear'] and current_fund['twoYear'] > hushen_300['twoYear']:
+        current_fund['twoYear'] and current_fund['twoYear'] > hushen_300['twoYear'] and\
+        current_fund['threeYear'] and current_fund['threeYear'] > hushen_300['threeYear']:
         return True
     return False
 

@@ -52,6 +52,7 @@ class ManagerInfo(object):
         manager_names = info.find_all(name='div', attrs={'class': 'jl_intro'})
         self.manager_name_list = []
         self.manager_fund_info_list = []
+        self.career_length = []
         if manager_names:
             for manager_name in manager_names:
                 name = manager_name.contents[1].contents[0].contents[1].contents[0]
@@ -63,6 +64,8 @@ class ManagerInfo(object):
                 if infos:
                     for info in infos:
                         tmp.append(ManagerFundInfo(info))
+                length = 2021 - int(tmp[-1].start_date.split('-')[0])
+                self.career_length.append(length)
                 self.manager_fund_info_list.append(tmp)
 
 class ManagerPeroidInfo:
@@ -79,7 +82,7 @@ class ManagerPeroidInfo:
             if index == 2:
                 self.manager_name = value.text
             if index == 3:
-                self.period = value.text
+                self.period = date_to_number(value.text)
             if index == 4:
                 self.score = value.text
 
@@ -101,7 +104,7 @@ class ManagerFundInfo:
             if index == 4:
                 self.end_date = value.text
             if index == 5:
-                self.time = value.text
+                self.time = date_to_number(value.text)
             if index == 6:
                 self.increase_amount = to_specific_value(value.text)
             if index == 7:
@@ -187,27 +190,6 @@ class ShareBondsPostionInfo(object):
         self.url = url
         self.rate = to_specific_value(rate)
 
-class IndustryInfo(object):
-    """
-    行业配置
-    """
-    def __init__(self, info):
-        info_list = info.find_all(name='tr')
-        self.industry_info_list = []
-        for ele in info_list:
-            td = ele.find_all(name='td')
-            name = td[1].text
-            rate = td[3].text
-            self.industry_info_list.append(IndustrySepcInfo(name, rate))
-
-class IndustrySepcInfo(object):
-    """
-    行业配置具体信息
-    """
-    def __init__(self, name, rate):
-        self.name = name
-        self.rate = to_specific_value(rate)
-
 def to_specific_value(st):
     st = st.strip()
     if st.find('--') != -1 or (st.find('-') != -1 and st.find('|') != -1) or st == '':
@@ -221,3 +203,14 @@ def to_specific_value(st):
     if st.find('亿') != -1:
         st = st.split('亿')[0]
     return float(st)
+
+def date_to_number(date):
+    if date.find('年') == -1:
+        day = date.split('天')[0]
+        return float(day) / 365.0
+    year = date.split('年')[0]
+    if date.find('天') == -1:
+        return float(year)
+    else:
+        day = date.split('又')[-1].split('天')[0]
+        return float(year) + float(day) / 365.0
