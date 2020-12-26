@@ -27,14 +27,16 @@ def is_what_you_want(input):
 def is_what_you_want_bonds(input):
     if is_in_selected_size(input.base_info.fund_size, 5, 100):
         if is_in_selected_top_rank(input.increase_info, 0.10):
+            if is_in_selected_top_rank_now(input.increase_info, 0.05):
                 return True
     return False
 
 def is_what_you_want_shares(input):
     if is_in_selected_size(input.base_info.fund_size, 10, 300):
-        if is_in_selected_top_rank(input.increase_info, 0.25):
-            if is_better_than_hushen_300(input.increase_info):
-                return True
+        if is_better_than_hushen_300(input.increase_info):
+            if is_in_selected_top_rank(input.increase_info, 0.20):
+                if is_in_selected_top_rank_now(input.increase_info, 0.05):
+                    return True
     return False
 
 def get_good_manager(input):
@@ -46,7 +48,7 @@ def get_good_manager(input):
             return None
         all_manager_info.append(manager_name_list[index])
         for info in value:
-            if manager_career_length[index] < 3 or\
+            if manager_career_length[index] < 5 or\
                info.increase_amount and info.same_type_ave and info.increase_amount < info.same_type_ave or\
                info.rank_rate and info.rank_rate > 0.25:
                return None
@@ -62,6 +64,14 @@ def is_in_selected_top_rank(increase_info, rank_rate):
        rank['oneYear'] and rank['oneYear'] < rank_rate and\
        rank['twoYear'] and rank['twoYear'] < rank_rate and\
        rank['threeYear'] and rank['threeYear'] < rank_rate:
+        return True
+    return False
+
+def is_in_selected_top_rank_now(increase_info, rank_rate):
+    rank = increase_info.rank
+    if rank['oneWeek'] and rank['oneWeek'] < rank_rate and\
+       rank['oneMonth'] and rank['oneMonth'] < rank_rate and\
+       rank['threeMonth'] and rank['threeMonth'] < rank_rate:
         return True
     return False
 
