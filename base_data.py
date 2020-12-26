@@ -205,6 +205,8 @@ def to_specific_value(st):
     return float(st)
 
 def date_to_number(date):
+    if date == '':
+        return 0.0
     if date.find('年') == -1:
         day = date.split('天')[0]
         return float(day) / 365.0
