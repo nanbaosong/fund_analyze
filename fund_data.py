@@ -1,5 +1,5 @@
 from base_data import * 
-import time
+import json
 
 class FundInfo(object):
 
@@ -9,6 +9,7 @@ class FundInfo(object):
         self.set_increase_info(all_info)
         self.set_shares_info(all_info)
         self.set_bonds_info(all_info)
+        self.set_holding_info(code)
 
     # 获取基金基本信息
     def set_base_info(self, all_info, name, code):
@@ -17,7 +18,7 @@ class FundInfo(object):
 
     # 获取基金经理信息
     def set_manager_info(self):
-        manager_info_html = requests.get(self.base_info.manager_html)
+        manager_info_html = requests.get(self.base_info.manager_html, headers)
         manager_info_html.encoding='utf-8'
         soup = BeautifulSoup(manager_info_html.text, 'lxml')
         self.manager_info = ManagerInfo(soup)
@@ -38,3 +39,14 @@ class FundInfo(object):
         info = all_info.find(name='li', attrs={'class': 'position_bonds'})
         if info:
             self.bonds_info = PositionInfo(info)
+
+    # 获取基金的持有人信息
+    def set_holding_info(self, code):
+        self.holding_info = None
+        url = 'http://fundf10.eastmoney.com/FundArchivesDatas.aspx?type=cyrjg&code=' + code
+        holding_info_html = requests.get(url, headers)
+        holding_info_html.encoding='utf-8'
+        soup = BeautifulSoup(holding_info_html.text, 'lxml')
+        if soup.find(name='tbody') and soup.find(name='tbody').find(name='tr'):
+            info = soup.find(name='tbody').find(name='tr')
+            self.holding_info = HoldingInfo(info)

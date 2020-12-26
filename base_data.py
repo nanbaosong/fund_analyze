@@ -190,6 +190,25 @@ class ShareBondsPostionInfo(object):
         self.url = url
         self.rate = to_specific_value(rate)
 
+class HoldingInfo(object):
+    """
+    持有人 信息
+    """
+
+    def __init__(self, info):
+        data = info.find_all(name='td')
+        for index, value in enumerate(data):
+            if index == 0:
+                self.date = value.text
+            if index == 1:
+                self.group = value.text
+            if index == 2:
+                self.person = value.text
+            if index == 3:
+                self.internal = value.text
+            if index == 4:
+                self.all_number = value.text
+
 def to_specific_value(st):
     st = st.strip()
     if st.find('--') != -1 or (st.find('-') != -1 and st.find('|') != -1) or st == '':

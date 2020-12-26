@@ -12,9 +12,9 @@ def analyze_manager(one_fund_info, manager_file):
 
 def analyze_one_fund(one_fund_info, fund_file):
     if is_what_you_want(one_fund_info):
-        fund_file.writelines(('%s  %s  %s  %s  %s  %s  %s  %s\n') % (one_fund_info.base_info.code, one_fund_info.base_info.name, one_fund_info.base_info.fund_type,\
+        fund_file.writelines(('%s  %s  %s  %s  %s  %s  %s  %s  %s\n') % (one_fund_info.base_info.code, one_fund_info.base_info.name, one_fund_info.base_info.fund_type,\
                         one_fund_info.base_info.create_date, one_fund_info.base_info.current_manager, one_fund_info.base_info.organization,\
-                        one_fund_info.base_info.fund_size, one_fund_info.base_info.fund_rating))
+                        one_fund_info.base_info.fund_size, one_fund_info.base_info.fund_rating, one_fund_info.holding_info.internal))
         fund_file.flush()
 
 
@@ -26,8 +26,8 @@ def is_what_you_want(input):
 
 def is_what_you_want_bonds(input):
     if is_in_selected_size(input.base_info.fund_size, 5, 100):
-        if is_in_selected_top_rank(input.increase_info, 0.10):
-            if is_in_selected_top_rank_now(input.increase_info, 0.05):
+        if is_in_selected_top_rank(input.increase_info, 0.20):
+            if is_in_selected_top_rank_now(input.increase_info, 0.10):
                 return True
     return False
 
@@ -35,7 +35,7 @@ def is_what_you_want_shares(input):
     if is_in_selected_size(input.base_info.fund_size, 10, 300):
         if is_better_than_hushen_300(input.increase_info):
             if is_in_selected_top_rank(input.increase_info, 0.20):
-                if is_in_selected_top_rank_now(input.increase_info, 0.05):
+                if is_in_selected_top_rank_now(input.increase_info, 0.10):
                     return True
     return False
 
