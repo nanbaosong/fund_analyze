@@ -4,6 +4,7 @@ from analyze_data import *
 
 filename = 'whatYouWant.txt'
 manager_filename = 'good_manager.txt'
+holding_filename = 'holding.txt'
 
 def get_one_fund_info(url, name, code):
     html = requests.get(url, headers)
@@ -28,6 +29,7 @@ def get_all_data(root_url):
     all_fund_info = []
     fund_file = open(filename, 'w')
     manager_file = open(manager_filename, 'w')
+    holding_file = open(holding_filename, 'w')
     # 逐个爬取数据
     for data in all_data:
         url = 'http://fund.eastmoney.com/' + data[0] + '.html'
@@ -36,11 +38,12 @@ def get_all_data(root_url):
         print('==== end to get data of %s %s ===='%(data[0], data[2]))
         # all_fund_info.append(one_fund_info)
         # 根据条件筛选基金
-        analyze_one_fund(one_fund_info, fund_file)
+        analyze_one_fund(one_fund_info, fund_file, holding_file)
         # 根据条件筛选基金经理
         analyze_manager(one_fund_info, manager_file)
     fund_file.close()
     manager_file.close()
+    holding_file.close()
     return all_fund_info
 
 if __name__ == "__main__":
