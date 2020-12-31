@@ -10,6 +10,7 @@ class FundInfo(object):
         self.set_shares_info(all_info)
         self.set_bonds_info(all_info)
         self.set_holding_info(code)
+        self.set_special_info(code)
 
     # 获取基金基本信息
     def set_base_info(self, all_info, name, code):
@@ -50,3 +51,14 @@ class FundInfo(object):
         if soup.find(name='tbody') and soup.find(name='tbody').find(name='tr'):
             info = soup.find(name='tbody').find(name='tr')
             self.holding_info = HoldingInfo(info)
+    
+    # 获取基金的特色数据（标准差，夏普比率）
+    def set_special_info(self, code):
+        url = 'http://fundf10.eastmoney.com/tsdata_' + code + '.html'
+        special_info_html = requests.get(url, headers)
+        special_info_html.encoding = 'utf-8'
+        soup = BeautifulSoup(special_info_html.text, "lxml")
+        if soup.find(name='div', attrs={'class':'detail'}) and soup.find(name='div', attrs={'class':'detail'}).find(name='table', attrs={'class':'fxtb'}):
+            info = soup.find(name='div', attrs={'class':'detail'}).find(name='table', attrs={'class':'fxtb'})
+            self.sspecial_info = SpecialInfo(info)
+

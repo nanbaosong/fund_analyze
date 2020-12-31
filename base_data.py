@@ -209,6 +209,36 @@ class HoldingInfo(object):
             if index == 4:
                 self.all_number = value.text
 
+class SpecialInfo(object):
+    """
+    基金特色数据
+    """
+
+    def __init__(self, info):
+        self.sp = {}
+        self.sd = {}
+        data = info.find_all(name='tr')
+        for index, value in enumerate(data):
+            if index == 1:
+                d = value.find_all(name='td')
+                for k, v in enumerate(d):
+                    if k == 1:
+                        self.sd['oneYear'] = to_specific_value(v.text)
+                    if k == 2:
+                        self.sd['twoYear'] = to_specific_value(v.text)
+                    if k == 3:
+                        self.sd['threeYear'] = to_specific_value(v.text)
+            if index == 2:
+                d = value.find_all(name='td')
+                for k, v in enumerate(d):
+                    if k == 1:
+                        self.sp['oneYear'] = to_specific_value(v.text)
+                    if k == 2:
+                        self.sp['twoYear'] = to_specific_value(v.text)
+                    if k == 3:
+                        self.sp['threeYear'] = to_specific_value(v.text)
+
+
 def to_specific_value(st):
     st = st.strip()
     if st.find('--') != -1 or (st.find('-') != -1 and st.find('|') != -1) or st == '':
