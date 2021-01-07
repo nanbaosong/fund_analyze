@@ -3,30 +3,12 @@ from fund_data import *
 
 all_manager_info = []
 
-def analyze_manager(one_fund_info, manager_file):
-    manager_name = get_good_manager(one_fund_info)
-    if manager_name:
-        manager_file.writelines(manager_name)
-        manager_file.writelines('\n')
-        manager_file.flush()
 
-def analyze_one_fund(one_fund_info, fund_file, holding_file):
-    if is_what_you_want(one_fund_info):
-        fund_file.writelines(('%s  %s  %s  %s  %s  %s  %s') % (one_fund_info.base_info.code, one_fund_info.base_info.name, one_fund_info.base_info.fund_type,\
-                        one_fund_info.base_info.create_date, one_fund_info.base_info.current_manager, one_fund_info.base_info.organization,\
-                        one_fund_info.base_info.fund_size))
-        if one_fund_info.holding_info:
-            fund_file.writelines('  %s\n' % (one_fund_info.holding_info.internal))
-        else:
-            fund_file.writelines('  0.00%\n')
-        fund_file.flush()
-    
-    if is_match_holding_filter(one_fund_info):
-        holding_file.writelines(('%s  %s  %s  %s  %s  %s  %s  %s\n') % (one_fund_info.base_info.code, one_fund_info.base_info.name, one_fund_info.base_info.fund_type,\
-                        one_fund_info.base_info.create_date, one_fund_info.base_info.current_manager, one_fund_info.base_info.organization,\
-                        one_fund_info.base_info.fund_size, one_fund_info.holding_info.internal))
-        holding_file.flush()
-
+def is_what_you_want_fund(input):
+    fund_type = input.base_info.fund_type
+    if fund_type == '债券型':
+        return is_what_you_want_bonds(input)
+    return is_what_you_want_shares(input)
 
 def is_match_holding_filter(input):
     fund_type = input.base_info.fund_type
@@ -38,12 +20,6 @@ def is_match_holding_filter(input):
             return True
     return False    
     
-    
-def is_what_you_want(input):
-    fund_type = input.base_info.fund_type
-    if fund_type == '债券型':
-        return is_what_you_want_bonds(input)
-    return is_what_you_want_shares(input)
 
 def is_what_you_want_bonds(input):
     if is_in_selected_size(input.base_info.fund_size, 5, 100):
@@ -60,20 +36,24 @@ def is_what_you_want_shares(input):
                     return True
     return False
 
-def get_good_manager(input):
-    manager_name_list = input.manager_info.manager_name_list
-    manager_fund_info_list = input.manager_info.manager_fund_info_list
-    manager_career_length = input.manager_info.career_length
+def get_what_you_want_manager(manager_info):
+    manager_name_list = manager_info.manager_name_list
+    manager_fund_info_list = manager_info.manager_fund_info_list
+    manager_career_length = manager_info.career_length
+    name_list = []
+    fund_info_list = []
     for index, value in enumerate(manager_fund_info_list):
-        if manager_name_list[index] in all_manager_info:
-            return None
-        all_manager_info.append(manager_name_list[index])
+        flag = False
         for info in value:
             if manager_career_length[index] < 5 or\
                info.increase_amount and info.same_type_ave and info.increase_amount < info.same_type_ave or\
                info.rank_rate and info.rank_rate > 0.25:
-               return None
-        return manager_name_list[index]
+               flag = True
+               break
+        if not flag:
+            name_list.append(manager_name_list[index])
+            fund_info_list.append(value)
+        return name_list, fund_info_list
 
 def is_in_selected_top_rank(increase_info, rank_rate):
     rank = increase_info.rank

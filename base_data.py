@@ -2,8 +2,9 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+import time
 
-headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.      36'}
+headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.36'}
 
 class BaseInfo(object):
     """
@@ -27,7 +28,7 @@ class BaseInfo(object):
                     self.current_manager = value
                     self.manager_html = td.find(name='a')['href']
                 if key == '成 立 日':
-                    self.create_date = value
+                    self.create_date = trans_to_date(value)
                 if key == '管 理 人':
                     self.organization = value
                     self.organization_html = td.find(name='a')['href']
@@ -76,9 +77,9 @@ class ManagerPeroidInfo:
         all_data = info.find_all(name='td')
         for index,value in enumerate(all_data):
             if index == 0:
-                self.start_date = value.text
+                self.start_date = trans_to_date(value.text)
             if index == 1:
-                self.end_date = value.text
+                self.end_date = trans_to_date(value.text)
             if index == 2:
                 self.manager_name = value.text
             if index == 3:
@@ -100,9 +101,9 @@ class ManagerFundInfo:
             if index == 2:
                 self.fund_type = value.text
             if index == 3:
-                self.start_date = value.text
+                self.start_date = trans_to_date(value.text)
             if index == 4:
-                self.end_date = value.text
+                self.end_date = trans_to_date(value.text)
             if index == 5:
                 self.time = date_to_number(value.text)
             if index == 6:
@@ -168,18 +169,19 @@ class PositionInfo(object):
     """
     def __init__(self, info):
         self.position_list = []
-        info_list = info.find_all(name='tr')
-        if len(info_list) > 1:
-            for index, value in enumerate(info_list):
-                if index != 0:
-                    real_value_list = value.find_all(name='td')
-                    if len(real_value_list) >= 2:
-                        position_name = real_value_list[0].text.strip()
-                        position_url = None
-                        if real_value_list[0].find(name='a'):
-                            position_url = real_value_list[0].find(name='a')['href']
-                        position_rate = real_value_list[1].text
-                        self.position_list.append(ShareBondsPostionInfo(position_name, position_url, position_rate))
+        if info:
+            info_list = info.find_all(name='tr')
+            if len(info_list) > 1:
+                for index, value in enumerate(info_list):
+                    if index != 0:
+                        real_value_list = value.find_all(name='td')
+                        if len(real_value_list) >= 2:
+                            position_name = real_value_list[0].text.strip()
+                            position_url = None
+                            if real_value_list[0].find(name='a'):
+                                position_url = real_value_list[0].find(name='a')['href']
+                            position_rate = real_value_list[1].text
+                            self.position_list.append(ShareBondsPostionInfo(position_name, position_url, position_rate))
 
 class ShareBondsPostionInfo(object):
     """
@@ -196,18 +198,24 @@ class HoldingInfo(object):
     """
 
     def __init__(self, info):
-        data = info.find_all(name='td')
-        for index, value in enumerate(data):
-            if index == 0:
-                self.date = value.text
-            if index == 1:
-                self.group = value.text
-            if index == 2:
-                self.person = value.text
-            if index == 3:
-                self.internal = value.text
-            if index == 4:
-                self.all_number = value.text
+        self.date = trans_to_date('')
+        self.group = '0.00%'
+        self.person = '0.00%'
+        self.internal = '0.00%'
+        self.all_number = '0.0'
+        if info:
+            data = info.find_all(name='td')
+            for index, value in enumerate(data):
+                if index == 0:
+                    self.date = trans_to_date(value.text)
+                if index == 1:
+                    self.group = value.text
+                if index == 2:
+                    self.person = value.text
+                if index == 3:
+                    self.internal = value.text
+                if index == 4:
+                    self.all_number = value.text
 
 class SpecialInfo(object):
     """
@@ -217,26 +225,27 @@ class SpecialInfo(object):
     def __init__(self, info):
         self.sp = {}
         self.sd = {}
-        data = info.find_all(name='tr')
-        for index, value in enumerate(data):
-            if index == 1:
-                d = value.find_all(name='td')
-                for k, v in enumerate(d):
-                    if k == 1:
-                        self.sd['oneYear'] = to_specific_value(v.text)
-                    if k == 2:
-                        self.sd['twoYear'] = to_specific_value(v.text)
-                    if k == 3:
-                        self.sd['threeYear'] = to_specific_value(v.text)
-            if index == 2:
-                d = value.find_all(name='td')
-                for k, v in enumerate(d):
-                    if k == 1:
-                        self.sp['oneYear'] = to_specific_value(v.text)
-                    if k == 2:
-                        self.sp['twoYear'] = to_specific_value(v.text)
-                    if k == 3:
-                        self.sp['threeYear'] = to_specific_value(v.text)
+        if info:
+            data = info.find_all(name='tr')
+            for index, value in enumerate(data):
+                if index == 1:
+                    d = value.find_all(name='td')
+                    for k, v in enumerate(d):
+                        if k == 1:
+                            self.sd['oneYear'] = to_specific_value(v.text)
+                        if k == 2:
+                            self.sd['twoYear'] = to_specific_value(v.text)
+                        if k == 3:
+                            self.sd['threeYear'] = to_specific_value(v.text)
+                if index == 2:
+                    d = value.find_all(name='td')
+                    for k, v in enumerate(d):
+                        if k == 1:
+                            self.sp['oneYear'] = to_specific_value(v.text)
+                        if k == 2:
+                            self.sp['twoYear'] = to_specific_value(v.text)
+                        if k == 3:
+                            self.sp['threeYear'] = to_specific_value(v.text)
 
 
 def to_specific_value(st):
@@ -265,3 +274,9 @@ def date_to_number(date):
     else:
         day = date.split('又')[-1].split('天')[0]
         return float(year) + float(day) / 365.0
+
+def trans_to_date(text):
+    text = text.strip()
+    if text == '至今' or text == '':
+        return time.strftime("%Y-%m-%d",time.localtime(time.time()))
+    return text
