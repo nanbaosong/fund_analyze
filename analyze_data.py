@@ -53,7 +53,7 @@ def get_what_you_want_manager(manager_info):
         if not flag:
             name_list.append(manager_name_list[index])
             fund_info_list.append(value)
-        return name_list, fund_info_list
+    return name_list, fund_info_list
 
 def is_in_selected_top_rank(increase_info, rank_rate):
     rank = increase_info.rank
