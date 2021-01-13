@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import requests
+from requests import exceptions
 from bs4 import BeautifulSoup
 from datetime import datetime
 import time
@@ -45,29 +46,31 @@ class ManagerInfo(object):
     基金经理信息
     """
     def __init__(self, info):
-        manager_peroid = info.find(name='div', attrs={'class': 'box'}).find(name='tbody').find_all(name='tr')
-        self.manager_period_info_list = []
-        if manager_peroid:
-            for element in manager_peroid:
-                self.manager_period_info_list.append(ManagerPeroidInfo(element))
-        manager_names = info.find_all(name='div', attrs={'class': 'jl_intro'})
         self.manager_name_list = []
         self.manager_fund_info_list = []
         self.career_length = []
-        if manager_names:
-            for manager_name in manager_names:
-                name = manager_name.contents[1].contents[0].contents[1].contents[0]
-                self.manager_name_list.append(name)
-            manager_fund = info.find_all(name='div', attrs={'class': 'jl_office'})
-            for element in manager_fund:
-                infos = element.find(name='tbody').find_all(name='tr')
-                tmp = []
-                if infos:
-                    for info in infos:
-                        tmp.append(ManagerFundInfo(info))
-                length = 2021 - int(tmp[-1].start_date.split('-')[0])
-                self.career_length.append(length)
-                self.manager_fund_info_list.append(tmp)
+        self.manager_period_info_list = []
+        if info:
+            manager_peroid = info.find(name='div', attrs={'class': 'box'}).find(name='tbody').find_all(name='tr')
+            if manager_peroid:
+                for element in manager_peroid:
+                    self.manager_period_info_list.append(ManagerPeroidInfo(element))
+            manager_names = info.find_all(name='div', attrs={'class': 'jl_intro'})
+            
+            if manager_names:
+                for manager_name in manager_names:
+                    name = manager_name.contents[1].contents[0].contents[1].contents[0]
+                    self.manager_name_list.append(name)
+                manager_fund = info.find_all(name='div', attrs={'class': 'jl_office'})
+                for element in manager_fund:
+                    infos = element.find(name='tbody').find_all(name='tr')
+                    tmp = []
+                    if infos:
+                        for info in infos:
+                            tmp.append(ManagerFundInfo(info))
+                    length = 2021 - int(tmp[-1].start_date.split('-')[0])
+                    self.career_length.append(length)
+                    self.manager_fund_info_list.append(tmp)
 
 class ManagerPeroidInfo:
     """
@@ -280,3 +283,14 @@ def trans_to_date(text):
     if text == '至今' or text == '':
         return time.strftime("%Y-%m-%d",time.localtime(time.time()))
     return text
+
+def get_html_from_url_header(url, header):
+    html = None
+    try:
+        html = requests.get(url, header)
+    except Exception as e:
+        print(e)
+    finally:
+        return html
+    
+    
