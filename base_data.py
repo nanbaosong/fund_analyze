@@ -120,14 +120,13 @@ class IncreaseInfo(object):
     """
     基金阶段涨幅信息
     """
-    current_fund = {}
-    same_type_ave = {}
-    hushen_300 = {}
-    rank = {}
-    follow = {}
-    level = {}
-
     def __init__(self, info):
+        self.current_fund = {}
+        self.same_type_ave = {}
+        self.hushen_300 = {}
+        self.rank = {}
+        self.follow = {}
+        self.level = {}
         all_data = info.find_all(name='tr')
         for index,value in enumerate(all_data):
             if index != 0:
