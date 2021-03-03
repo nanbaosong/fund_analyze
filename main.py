@@ -23,9 +23,9 @@ def get_one_fund_info(url, name, code):
     if html:
         html.encoding='utf-8'
         soup = BeautifulSoup(html.text, "html.parser")
-        #如果网页重定向就更新url
+        # 如果网页重定向就更新url
         redirect = soup.find(name='head').find(name='script', attrs={'type': 'text/javascript'})
-        if redirect != None and redirect.contents[0] != None:
+        if redirect != None and redirect.contents[0] != None and 'location.href' in redirect.contents[0]:
             real_url = redirect.contents[0].split('"')[1]
             html = get_html_from_url_header(real_url, headers)
             if html:
