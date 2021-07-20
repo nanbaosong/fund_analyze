@@ -49,7 +49,7 @@ def get_all_data(root_url):
         tmp_str = root_html.text.split('=')[-1].split(';')[0]
         all_data = eval(tmp_str)
         threads = []
-        data = numpy.array_split(all_data, 10)
+        data = numpy.array_split(all_data, 5)
         for value in data:
             t = threading.Thread(target=work_func, args=(value, es))
             threads.append(t)

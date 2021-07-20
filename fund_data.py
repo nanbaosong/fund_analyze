@@ -28,7 +28,7 @@ class FundInfo(object):
 
     # 获取阶段涨幅信息
     def set_increase_info(self, all_info):
-        info = all_info.find(name='li', attrs={'class': 'increaseAmount'})
+        info = all_info.find(name='li', attrs={'class': 'increaseAmount', 'id': 'increaseAmount_stage'})
         self.increase_info = IncreaseInfo(info)
 
     # 获取持仓股票信息

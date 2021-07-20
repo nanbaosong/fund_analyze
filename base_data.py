@@ -134,18 +134,20 @@ class IncreaseInfo(object):
     
     def get_data(self, value):
         key = value.find(name='td')
-        if key.text.strip() == '阶段涨幅':
+        if key.contents[1].contents[0].strip() == '阶段涨幅':
             d = self.current_fund
-        if key.text.strip() == '同类平均':
+        elif key.contents[1].contents[0].strip() == '同类平均':
             d = self.same_type_ave
-        if key.text.strip() == '沪深300':
+        elif key.contents[1].contents[0].strip() == '沪深300':
             d = self.hushen_300
-        if key.find(name='div', attrs={'class': 'infoTips'}) and key.contents[1].contents[0].strip() == '跟踪标的':
+        elif key.contents[1].contents[0].strip() == '跟踪标的':
             d = self.follow
-        if key.text.strip() == '同类排名':
+        elif key.contents[1].contents[0].strip() == '同类排名':
             d = self.rank
-        if key.find(name='div', attrs={'class': 'infoTips'}) and key.contents[1].contents[0].strip() == '四分位排名':
+        elif key.contents[1].contents[0].strip() == '四分位排名':
             d = self.level
+        else:
+            return
         data = value.find_all(name='td')
         for sub_index, sub_value in enumerate(data):
             if sub_index == 1:
