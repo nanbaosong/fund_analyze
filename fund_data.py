@@ -1,5 +1,6 @@
-from base_data import * 
-import json
+from base_data import *
+from utils import get_html_from_url
+from bs4 import BeautifulSoup
 
 class FundInfo(object):
 
@@ -20,7 +21,7 @@ class FundInfo(object):
     # 获取基金经理信息
     def set_manager_info(self):
         self.manager_info = ManagerInfo(None)
-        manager_info_html = get_html_from_url_header(self.base_info.manager_html, headers)
+        manager_info_html = get_html_from_url(self.base_info.manager_html)
         if manager_info_html:
             manager_info_html.encoding='utf-8'
             soup = BeautifulSoup(manager_info_html.text, 'lxml')
@@ -49,7 +50,7 @@ class FundInfo(object):
     def set_holding_info(self, code):
         self.holding_info = HoldingInfo(None)
         url = 'http://fundf10.eastmoney.com/FundArchivesDatas.aspx?type=cyrjg&code=' + code
-        holding_info_html = get_html_from_url_header(url, headers)
+        holding_info_html = get_html_from_url(url)
         if holding_info_html:
             holding_info_html.encoding='utf-8'
             soup = BeautifulSoup(holding_info_html.text, 'lxml')
@@ -61,7 +62,7 @@ class FundInfo(object):
     def set_special_info(self, code):
         self.special_info = SpecialInfo(None)
         url = 'http://fundf10.eastmoney.com/tsdata_' + code + '.html'
-        special_info_html = get_html_from_url_header(url, headers)
+        special_info_html = get_html_from_url(url)
         if special_info_html:
             special_info_html.encoding = 'utf-8'
             soup = BeautifulSoup(special_info_html.text, "lxml")

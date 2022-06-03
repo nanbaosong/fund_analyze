@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-d
-from fund_data import *
-from elasticsearch import Elasticsearch
 
 def write_fund_info_to_es(one_fund_info, es, fund_info_index):
     """
@@ -85,13 +83,3 @@ def delete_index_es(es, index):
     else:
         print(('delete index %s in es success') % (index))
     return delete_result
-
-def remove_duplicate(manager_name_list, manager_fund_info_list, all_manager_name_info):
-    name_list = []
-    fund_info_list = []
-    for index, value in enumerate(manager_name_list):
-        if manager_name_list[index] not in all_manager_name_info:
-            name_list.append(value)
-            fund_info_list.append(manager_fund_info_list[index])
-            all_manager_name_info.append(value)
-    return name_list, fund_info_list

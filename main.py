@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-d
-from fund_data import *
-from analyze_data import *
-from write_data import *
+from fund_data import FundInfo
+from bs4 import BeautifulSoup
+from utils import get_html_from_url, remove_duplicate
+from write_data import write_fund_info_to_es, write_manager_info_to_es, delete_index_es
 import threading
 import numpy
+from elasticsearch import Elasticsearch
 
 es_list = [{'host':'127.0.0.1','port':9200}]
 fund_info_index = 'fund_info'
 manager_info_index = 'manager_info'
-selected_fund_info_index = 'selected_fund_info'
-selected_manager_info_index = 'selected_manager_info'
-
-all_index = [fund_info_index, manager_info_index, selected_fund_info_index, selected_manager_info_index]
-
-all_selected_manager_name_info = []
+thread_num = 4
+all_index = [fund_info_index, manager_info_index]
 all_manager_name_info = []
 
 
 def get_one_fund_info(url, name, code):
     fund_info = None
-    html = get_html_from_url_header(url, headers)
+    html = get_html_from_url(url)
     if html:
         html.encoding='utf-8'
         soup = BeautifulSoup(html.text, "html.parser")
@@ -27,7 +25,7 @@ def get_one_fund_info(url, name, code):
         redirect = soup.find(name='head').find(name='script', attrs={'type': 'text/javascript'})
         if redirect != None and redirect.contents[0] != None and 'location.href' in redirect.contents[0]:
             real_url = redirect.contents[0].split('"')[1]
-            html = get_html_from_url_header(real_url, headers)
+            html = get_html_from_url(real_url)
             if html:
                 html.encoding='utf-8'
                 soup = BeautifulSoup(html.text, 'lxml')
@@ -43,13 +41,13 @@ def get_all_data(root_url):
             return
 
     # 获取所有基金的code和name 
-    root_html = get_html_from_url_header(root_url, headers)
+    root_html = get_html_from_url(root_url)
     if root_html:
         root_html.encoding='utf-8'
         tmp_str = root_html.text.split('=')[-1].split(';')[0]
         all_data = eval(tmp_str)
         threads = []
-        data = numpy.array_split(all_data, 5)
+        data = numpy.array_split(all_data, thread_num)
         for value in data:
             t = threading.Thread(target=work_func, args=(value, es))
             threads.append(t)
@@ -73,14 +71,6 @@ def work_func(all_data, es):
                 manager_info = one_fund_info.manager_info
                 manager_name_list, manager_fund_info_list = remove_duplicate(manager_info.manager_name_list, manager_info.manager_fund_info_list, all_manager_name_info)
                 write_manager_info_to_es(manager_name_list, manager_fund_info_list, es, manager_info_index)
-
-                # 根据条件筛选基金
-                if is_what_you_want_fund(one_fund_info):
-                    write_fund_info_to_es(one_fund_info, es, selected_fund_info_index)
-                # 根据条件筛选基金经理
-                manager_name_list, manager_fund_info_list = get_what_you_want_manager(manager_info)
-                selected_manager_name_list, selected_manager_fund_info_list = remove_duplicate(manager_name_list, manager_fund_info_list, all_selected_manager_name_info)
-                write_manager_info_to_es(selected_manager_name_list, selected_manager_fund_info_list, es, selected_manager_info_index)
 
 if __name__ == "__main__":
     root_url = 'http://fund.eastmoney.com/js/fundcode_search.js'
