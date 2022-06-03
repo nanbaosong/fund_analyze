@@ -1,7 +1,9 @@
 import requests
 import time
+from requests.adapters import HTTPAdapter
 
-header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.36'}
+header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.53'}
+
 
 def to_specific_value(st):
     st = st.strip()
@@ -38,8 +40,10 @@ def trans_to_date(text):
 
 def get_html_from_url(url):
     html = None
+    s = requests.Session()
+    s.mount('http://', HTTPAdapter(max_retries=3))
     try:
-        html = requests.get(url, header)
+        html = s.get(url, headers=header, timeout=10)
     except Exception as e:
         print(e)
     finally:
@@ -55,3 +59,9 @@ def remove_duplicate(manager_name_list, manager_fund_info_list, all_manager_name
             all_manager_name_info.append(value)
     return name_list, fund_info_list
     
+
+def remove_same_fund(all_data):
+    for data in all_data:
+        name = data[2]
+        if name[-1] == 'C' or name[-4:] == "(后端)":
+            all_data.remove(data)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-d
 from fund_data import FundInfo
 from bs4 import BeautifulSoup
-from utils import get_html_from_url, remove_duplicate
+from utils import get_html_from_url, remove_duplicate, remove_same_fund
 from write_data import write_fund_info_to_es, write_manager_info_to_es, delete_index_es
 import threading
 import numpy
@@ -46,6 +46,7 @@ def get_all_data(root_url):
         root_html.encoding='utf-8'
         tmp_str = root_html.text.split('=')[-1].split(';')[0]
         all_data = eval(tmp_str)
+        remove_same_fund(all_data)
         threads = []
         data = numpy.array_split(all_data, thread_num)
         for value in data:
