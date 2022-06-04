@@ -60,8 +60,12 @@ def remove_duplicate(manager_name_list, manager_fund_info_list, all_manager_name
     return name_list, fund_info_list
     
 
-def remove_same_fund(all_data):
+def remove_useless(all_data):
+    res = []
     for data in all_data:
         name = data[2]
-        if name[-1] == 'C' or name[-4:] == "(后端)":
-            all_data.remove(data)
+        type = data[3]
+        if name[-1] == 'C' or name[-4:] == "(后端)" or type == '货币型':
+            continue
+        res.append(data)
+    return res
